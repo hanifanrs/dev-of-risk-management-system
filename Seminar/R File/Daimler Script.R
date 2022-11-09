@@ -21,7 +21,7 @@ n <- length(daimler$Schlusskurs)
 logreturn <- log(daimler$Schlusskurs[-1]/daimler$Schlusskurs[-n])
 
 
-# Convert the returns to Data Frame
+# Convert the returns to Data Frame to better view
 logreturn.df <- data.frame(logreturn)
 sortedlog <- data.frame(logreturn.df[order(logreturn),]) %>% 
   rename(logreturns = 1)
