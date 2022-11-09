@@ -1,10 +1,12 @@
 #Datei einlesen
 
-library(readxl)
-read.csv
-mercedes$Schlusskurs
+## -> please delete the line
 
-mercedes<-read.csv(file="mercedes.csv",sep=";",dec=",")
+##library(readxl)
+##read.csv
+##mercedes$Schlusskurs
+
+mercedes<-read.csv(file="mercedes.csv",header=TRUE,sep=";",dec=",")
 mercedes$Schlusskurs
 
 #Datei type einlesen
@@ -15,15 +17,15 @@ str(mercedes)
 
 #Converted to correct Datatype
 
-library(data.frame)
-is.dataframe(mercedes$schlusskurs)
+##library(data.frame)
+##is.dataframe(mercedes$schlusskurs)
 mercedes$Stuecke <- as.numeric(gsub(".", "", mercedes$Stuecke, fixed = TRUE))
 mercedes$Volumen <- as.numeric(gsub(".", "", mercedes$Volumen, fixed = TRUE))
 mercedes$Datum <- as.Date(mercedes$Datum, "%Y-%m-%d")
 
-mercedes$Schlusskurs <- as.numeric(gsub(".", "", mercedes$Schlusskurs, fixed = TRUE))
+##mercedes$Schlusskurs <- as.numeric(gsub(".", "", mercedes$Schlusskurs, fixed = TRUE))
 
-print(mercedes$schlusskurs)
+##print(mercedes$schlusskurs)
 
 
 
@@ -48,7 +50,7 @@ vconnection<-dbConnect(RMySQL::MySQL(),
                        port    =3306,
                        user    ="root",
                        password="jesus2015")
-print(vconnection)
+##print(vconnection)
 
 #datei aus mysql lesen
 
@@ -62,8 +64,8 @@ print(dm)
 library(data.table)
 mercedes$schlusskurs
 df <- df[order(df$mercedes.Schlusskurs),]
-df <- df[order(df$mercedes.Schlusskurs),]
-print(df)
+##df <- df[order(df$mercedes.Schlusskurs),]
+##print(df)
 
 
 #confidence intervall berechenen
