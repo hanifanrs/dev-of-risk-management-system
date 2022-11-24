@@ -1,6 +1,6 @@
 #dbk = Deutsche Bank AG
 #mbg = Mercedes-Benz Group AG
-
+library(dplyr)
 
 # Import File
 daimler<-read.csv(file="File/Daimler.csv",header=TRUE,sep=";",dec = ",")
@@ -30,7 +30,7 @@ deutschebank <- deutschebank[-c(2:4,6:7)]
 daimler <- daimler[order(daimler$Datum),]
 deutschebank <- deutschebank[order(deutschebank$Datum),]
 
-# Calculating logarithmic returns
+# Calculating logarithmic returns (Rendite Prozent)
 n_mbg <- length(daimler$Schlusskurs)
 logreturn_mbg <- log(daimler$Schlusskurs[-1]/daimler$Schlusskurs[-n_mbg])
 
@@ -53,7 +53,7 @@ total_kapital <- 1000000
 kapital_mbg <- 600000
 kapital_dbk <- total_kapital-kapital_mbg 
 
-# Calculate the € Returns
+# Calculate the € Returns (Rendite Euro)
 returns_mbg <- logreturn_mbg*kapital_mbg
 returns_dbk <- logreturn_dbk*kapital_dbk
 
@@ -72,9 +72,12 @@ var95 <- unname(quantile(portfoliovalue$portfoliovalues, c(.05)))
 
 portfolio <- data.frame(
   datum = c(daimler$Datum[-1]),
-  rendite_prozent_mbg = c(sortedlog_mbg),
-  rendite_prozent_dbk = c(sortedlog_dbk),
-  rendite_euro_mbg = c(logreturn_mbg),
-  rendite_euro_dbk = c(logreturn_dbk),
+  rendite_prozent_mbg = c(logreturn_mbg),
+  rendite_prozent_dbk = c(logreturn_dbk),
+  rendite_euro_mbg = c(returns_mbg),
+  rendite_euro_dbk = c(returns_dbk),
   portfolio = c(portfoliovalue))
   
+valueatrisk <- data.frame(
+  var_99 = c(var99),
+  var_95 = c(var95))
