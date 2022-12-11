@@ -2,7 +2,9 @@ use merc;
 
 drop table if exists portfolio;
 drop table if exists fonds;
-
+drop table if exists snapshot;
+drop table if exists aktien;
+drop table if exists tagespreis;
 
 
 drop view if exists ausgabe;
@@ -23,6 +25,29 @@ Wert_Portfolio  Integer  Not Null,
 Constraint FK_Portfolio_Fonds FOREIGN KEY (ID) REFERENCES Fonds(ID)		
 						ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+create table snapshot(
+anzahl   integer   not null, 
+aktien   Char(30)  not  null
+);
+
+create table aktien(
+name char(30),
+ISIN Char(30),
+Branche Char(30),
+Land Char(30)
+);
+
+create table Tagespreis(
+Aktien_ID Integer Primary Key,
+Datum date,
+Erster Integer,
+Hoch Integer,
+Tief Integer,
+Schlusskurs Integer,
+Stuecke Integer,
+Volumen Integer
+); 
 
 insert into fonds
 Values (123, 'allianz', 'DE12345678910', 'EUR');
