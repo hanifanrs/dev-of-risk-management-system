@@ -20,14 +20,11 @@ if data_file is not None:
     df["Stuecke"] = df["Stuecke"].str.replace(".", "")
     df["Volumen"] = df["Volumen"].str.replace(".", "")
 
-    # add new column "Tagespreis_id" with the value auto increment
-    df["Tagespreis_id"] = range(1, len(df) + 1)
-
     # add new column "Aktien_id" with user can choose the value one to ten
     df["Aktien_id"] = st.text_input("Insert Aktien_id")
 
     # change the index of column with Tagespreis_id is the first column, "Aktien_id" is the second column, the rest is same.
-    df = df[["Tagespreis_id", "Aktien_id", "Datum", "Erster", "Hoch", "Tief", "Schlusskurs", "Stuecke", "Volumen"]]
+    df = df[["Aktien_id", "Datum", "Erster", "Hoch", "Tief", "Schlusskurs", "Stuecke", "Volumen"]]
 
     # show the dataframe
     st.dataframe(df)
