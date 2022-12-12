@@ -21,7 +21,6 @@ CREATE TABLE Aktien (
 );
 
 CREATE TABLE Tagespreis (
-    Tagespreis_id 			INT NOT NULL AUTO_INCREMENT,
     Aktien_id 				INT NOT NULL,
     Datum 					DATE NOT NULL,
     Erster 					DECIMAL(10,2) NOT NULL,
@@ -30,7 +29,7 @@ CREATE TABLE Tagespreis (
     Schlusskurs 			DECIMAL(10,2) NOT NULL,
     Stuecke 				INT NOT NULL,
     Volumen 				INT NOT NULL,
-    PRIMARY KEY (Tagespreis_id),
+    PRIMARY KEY (Aktien_id, Datum),
 	Constraint FK_Aktien_id FOREIGN KEY (Aktien_id) REFERENCES Aktien(Aktien_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -64,6 +63,7 @@ CREATE TABLE Fonds (
     Constraint FK_Portfolio_id FOREIGN KEY (Portfolio_id) REFERENCES Portfolio(Portfolio_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
 INSERT INTO Aktien (Name, ISIN, WKN, Branche, Land)
 VALUES 
 ('Mercedes-Benz Group', 'DE0007100000', '710000', 'Automobilhersteller', 'Deutschland'),
@@ -76,3 +76,9 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Tagespreis_2.csv'
+INTO TABLE Tagespreis
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
