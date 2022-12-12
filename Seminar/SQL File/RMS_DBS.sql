@@ -64,3 +64,15 @@ CREATE TABLE Fonds (
     Constraint FK_Portfolio_id FOREIGN KEY (Portfolio_id) REFERENCES Portfolio(Portfolio_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+INSERT INTO Aktien (Name, ISIN, WKN, Branche, Land)
+VALUES 
+('Mercedes-Benz Group', 'DE0007100000', '710000', 'Automobilhersteller', 'Deutschland'),
+('Deutsche Bank', 'DE0005140008', '514000', 'Universalbanken', 'Deutschland');
+
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Tagespreis_1.csv'
+INTO TABLE Tagespreis
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
