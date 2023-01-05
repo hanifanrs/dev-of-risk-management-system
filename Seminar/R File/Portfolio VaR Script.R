@@ -2,33 +2,13 @@
 #mbg = Mercedes-Benz Group AG
 library(dplyr)
 
-# Import File
-daimler<-read.csv(file="File/Daimler.csv",header=TRUE,sep=";",dec = ",")
-daimler
-
-deutschebank <-read.csv(file="File/Deutsche Bank.csv",header=TRUE,sep=";",dec = ",")
-deutschebank
-
 # Check data type
 str(daimler)
 str(deutschebank)
 
-# Converted to correct Datatype
-daimler$Stuecke <- as.numeric(gsub(".", "", daimler$Stuecke, fixed = TRUE))
-daimler$Volumen <- as.numeric(gsub(".", "", daimler$Volumen, fixed = TRUE))
-daimler$Datum <- as.Date(daimler$Datum, "%Y-%m-%d")
-
-deutschebank$Stuecke <- as.numeric(gsub(".", "", deutschebank$Stuecke, fixed = TRUE))
-deutschebank$Volumen <- as.numeric(gsub(".", "", deutschebank$Volumen, fixed = TRUE))
-deutschebank$Datum <- as.Date(deutschebank$Datum, "%Y-%m-%d")
-
 # Drop unused columns (Erster,Hoch,Tief,Stuecke,Volumen)
-daimler <- daimler[-c(2:4,6:7)]
-deutschebank <- deutschebank[-c(2:4,6:7)]
-
-# Sort dates
-daimler <- daimler[order(daimler$Datum),]
-deutschebank <- deutschebank[order(deutschebank$Datum),]
+daimler <- daimler[-c(1:2,4:6,8:9)]
+deutschebank <- deutschebank[-c(1:2,4:6,8:9)]
 
 # Calculating logarithmic returns (Rendite Prozent)
 n_mbg <- length(daimler$Schlusskurs)
@@ -70,7 +50,7 @@ var99 <- unname(quantile(portfoliovalue$portfoliovalues, c(.01)))
 # fifth percentile (Confidence Interval = 95%)
 var95 <- unname(quantile(portfoliovalue$portfoliovalues, c(.05)))
 
-portfolio <- data.frame(
+portfolio_r <- data.frame(
   datum = c(daimler$Datum[-1]),
   rendite_prozent_mbg = c(logreturn_mbg),
   rendite_prozent_dbk = c(logreturn_dbk),
@@ -81,3 +61,16 @@ portfolio <- data.frame(
 valueatrisk <- data.frame(
   var_99 = c(var99),
   var_95 = c(var95))
+
+df <- data.frame(
+  Portfolio_id = 1, Datum = "2023-01-05", Snapshot_id = 1, Value_at_risk = var99, 
+  Wert = total_kapital+var99)
+
+portfolio <- rbind(portfolio, df)
+
+
+# Write table in SQL
+
+dbWriteTable(rms_dbs, "Portfolio", portfolio, append = TRUE, row.names=FALSE)
+
+dbDisconnect(rms_dbs)
