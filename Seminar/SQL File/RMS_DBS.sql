@@ -21,7 +21,7 @@ CREATE TABLE Aktien (
 );
 
 CREATE TABLE Tagespreis (
-	Tagespreis_id			INT NOT NULL AUTO_INCREMENT,
+	Tagespreis_id			INT AUTO_INCREMENT,
     Aktien_id 				INT NOT NULL,
     Datum 					DATE NOT NULL,
     Erster 					DECIMAL(10,2) NOT NULL,
@@ -32,7 +32,8 @@ CREATE TABLE Tagespreis (
     Volumen 				INT NOT NULL,
     PRIMARY KEY (Tagespreis_id),
 	Constraint FK_Aktien_id FOREIGN KEY (Aktien_id) REFERENCES Aktien(Aktien_id)
-								ON DELETE NO ACTION ON UPDATE NO ACTION
+								ON DELETE NO ACTION ON UPDATE NO ACTION,
+	Constraint Tagespreis_unique UNIQUE (Aktien_id, Datum)
 );
 
 CREATE TABLE Snapshot (
@@ -75,11 +76,15 @@ INTO TABLE Tagespreis
 FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-IGNORE 1 ROWS;
+IGNORE 1 ROWS
+(Aktien_id,Datum,Erster,Hoch,Tief,Schlusskurs,Stuecke,Volumen)
+SET Tagespreis_id = NULL;
 
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Tagespreis_2.csv'
 INTO TABLE Tagespreis
 FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-IGNORE 1 ROWS;
+IGNORE 1 ROWS
+(Aktien_id,Datum,Erster,Hoch,Tief,Schlusskurs,Stuecke,Volumen)
+SET Tagespreis_id = NULL;
