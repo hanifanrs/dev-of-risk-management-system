@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS Tagespreis;
 DROP TABLE IF EXISTS Aktien;
 
 # Anlegen der Tabellen:
+SET @@GLOBAL.local_infile = 1;
 
 CREATE TABLE Aktien (
     Aktien_id 				INT NOT NULL AUTO_INCREMENT,
@@ -70,6 +71,8 @@ INSERT INTO Aktien (Name, ISIN, WKN, Branche, Land)
 VALUES 
 ('Mercedes-Benz Group', 'DE0007100000', '710000', 'Automobilhersteller', 'Deutschland'),
 ('Deutsche Bank', 'DE0005140008', '514000', 'Universalbanken', 'Deutschland');
+
+# Load data
 
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Tagespreis_1.csv'
 INTO TABLE Tagespreis
