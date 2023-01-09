@@ -67,12 +67,14 @@ CREATE TABLE Fonds (
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+# Jetzt werden die Tabellen mit Inhalt versorgt
+
 INSERT INTO Aktien (Name, ISIN, WKN, Branche, Land)
 VALUES 
 ('Mercedes-Benz Group', 'DE0007100000', '710000', 'Automobilhersteller', 'Deutschland'),
 ('Deutsche Bank', 'DE0005140008', '514000', 'Universalbanken', 'Deutschland');
 
-# Load data
+# Daten aus dem Ergebnis von csv_manipulation.py laden
 
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Tagespreis_1.csv'
 INTO TABLE Tagespreis
