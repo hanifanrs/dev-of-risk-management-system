@@ -29,7 +29,7 @@ CREATE TABLE Tagespreis (
     Hoch 					DECIMAL(10,2),
     Tief 					DECIMAL(10,2),
     Schlusskurs 			DECIMAL(10,2),
-    Stuecke 				INT,
+    Stuecke 				BIGINT,
     Volumen 				BIGINT,
     PRIMARY KEY (Tagespreis_id),
 	Constraint FK_Aktien_id FOREIGN KEY (Aktien_id) REFERENCES Aktien(Aktien_id)
