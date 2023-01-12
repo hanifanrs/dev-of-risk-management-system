@@ -27,8 +27,10 @@ fonds <- dbReadTable(rms_dbs, "fonds")
 tagespreis$Datum <- as.Date(tagespreis$Datum, "%Y-%m-%d")
 
 # Import Data from Queries 
-daimler <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id = '1'")
+daimler <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id 
+                      = '1' AND Datum BETWEEN '2016-01-01' AND '2022-12-31';")
 daimler
 
-deutschebank <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id = '2'")
+deutschebank <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id 
+                      = '2' AND Datum BETWEEN '2016-01-01' AND '2022-12-31';")
 deutschebank
