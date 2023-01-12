@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import base64
+import numpy as np
 
 # user can upload the csv
 st.title("CSV Manipulation")
@@ -9,6 +10,8 @@ data_file = st.file_uploader("Please insert your csv file below", type="csv")
 # read the csv file
 if data_file is not None:
     df = pd.read_csv(data_file, sep=";")
+    df = df.replace(r'^\s*$', np.nan, regex=True)
+    df = df.dropna()
 
     # replace the "," with "." in each row in column "Erster", "Hoch", "Tief", "Schlusskurs"
     df["Erster"] = df["Erster"].str.replace(",", ".")
@@ -23,7 +26,7 @@ if data_file is not None:
     # add new column "Aktien_id" with user can choose the value one to ten
     df["Aktien_id"] = st.text_input("Insert Aktien_id")
 
-    # change the index of column with Tagespreis_id is the first column, "Aktien_id" is the second column, the rest is same.
+    # change the index of column with "Aktien_id" is the first column, the rest is same.
     df = df[["Aktien_id", "Datum", "Erster", "Hoch", "Tief", "Schlusskurs", "Stuecke", "Volumen"]]
 
     # show the dataframe
