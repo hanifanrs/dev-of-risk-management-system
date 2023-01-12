@@ -24,13 +24,13 @@ CREATE TABLE Aktien (
 CREATE TABLE Tagespreis (
 	Tagespreis_id			INT AUTO_INCREMENT,
     Aktien_id 				INT NOT NULL,
-    Datum 					DATE NOT NULL,
-    Erster 					DECIMAL(10,2) NOT NULL,
-    Hoch 					DECIMAL(10,2) NOT NULL,
-    Tief 					DECIMAL(10,2) NOT NULL,
-    Schlusskurs 			DECIMAL(10,2) NOT NULL,
-    Stuecke 				INT NOT NULL,
-    Volumen 				INT NOT NULL,
+    Datum 					DATE,
+    Erster 					DECIMAL(10,2),
+    Hoch 					DECIMAL(10,2),
+    Tief 					DECIMAL(10,2),
+    Schlusskurs 			DECIMAL(10,2),
+    Stuecke 				INT,
+    Volumen 				BIGINT,
     PRIMARY KEY (Tagespreis_id),
 	Constraint FK_Aktien_id FOREIGN KEY (Aktien_id) REFERENCES Aktien(Aktien_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -41,7 +41,7 @@ CREATE TABLE Snapshot (
     Snapshot_id 			INT NOT NULL,
     Anzahl 					INT NOT NULL,
     Aktien_id 				INT NOT NULL,
-    PRIMARY KEY (Snapshot_id),
+    PRIMARY KEY (Snapshot_id, Aktien_id),
 	Constraint FK_Aktien_id2 FOREIGN KEY (Aktien_id) REFERENCES Aktien(Aktien_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -52,7 +52,7 @@ CREATE TABLE Portfolio (
     Snapshot_id 			INT NOT NULL,
     Value_at_risk 			DECIMAL(10,2),
     Wert 					DECIMAL(10,2),
-    PRIMARY KEY (Portfolio_id),
+    PRIMARY KEY (Portfolio_id, Snapshot_id),
 	Constraint FK_Snapshot_id FOREIGN KEY (Snapshot_id) REFERENCES Snapshot(Snapshot_id)
 								ON DELETE NO ACTION ON UPDATE NO ACTION
 );
