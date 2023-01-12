@@ -23,13 +23,12 @@ snapshot <- dbReadTable(rms_dbs, "snapshot")
 portfolio <- dbReadTable(rms_dbs, "portfolio")
 fonds <- dbReadTable(rms_dbs, "fonds") 
 
+# Converted to correct Datatype
+tagespreis$Datum <- as.Date(tagespreis$Datum, "%Y-%m-%d")
+
 # Import Data from Queries 
 daimler <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id = '1'")
 daimler
 
 deutschebank <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id = '2'")
 deutschebank
-
-# Converted to correct Datatype
-daimler$Datum <- as.Date(daimler$Datum, "%Y-%m-%d")
-deutschebank$Datum <- as.Date(deutschebank$Datum, "%Y-%m-%d")
