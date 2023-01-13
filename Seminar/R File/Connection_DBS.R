@@ -34,3 +34,7 @@ daimler
 deutschebank <- dbGetQuery(rms_dbs, "SELECT * FROM rms_dbs.tagespreis WHERE Aktien_id 
                       = '2' AND Datum BETWEEN '2016-01-01' AND '2022-12-31';")
 deutschebank
+
+# Converted to correct Datatype
+daimler$Datum <- as.Date(daimler$Datum, "%Y-%m-%d")
+deutschebank$Datum <- as.Date(deutschebank$Datum, "%Y-%m-%d")
