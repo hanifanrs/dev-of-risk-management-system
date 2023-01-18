@@ -3,6 +3,7 @@
 library(dplyr)
 library(DBI)
 library(lubridate)
+library(ggplot2)
 
 # Check data type
 str(daimler)
@@ -13,8 +14,8 @@ daimler <- daimler[-c(1:2,4:6,8:9)]
 deutschebank <- deutschebank[-c(1:2,4:6,8:9)]
 
 # Filter to 2022 year only
-daimler <- subset(daimler, year(daimler$Datum) == 2022)
-deutschebank <- subset(deutschebank, year(deutschebank$Datum) == 2022)
+#daimler <- subset(daimler, year(daimler$Datum) == 2022)
+#deutschebank <- subset(deutschebank, year(deutschebank$Datum) == 2022)
 
 # Sort descending
 daimler <- daimler %>% arrange_all(desc)
@@ -62,6 +63,16 @@ portfolio_gestern <- daimler_portfolio_gestern+deutschebank_portfolio_gestern
 
 #portfolio_gestern <- sort(portfolio_gestern, decreasing = TRUE)
 
+# Calculate the weight of portfolio
+daimler_gewicht <- daimler_wert/portfolio_r
+deutschebank_gewicht <- deutschebank_wert/portfolio_r
+
+# Calculate the returns of portfolio
+portfolio_rendite <- 
+  (daimler_gewicht*daimler_rendite) +
+  (deutschebank_gewicht*deutschebank_rendite)
+
+portfolio_rendite
 
 uebersicht <- data.frame(datum = daimler$Datum,
                          daimler_anzahl = daimler_anzahl$Anzahl,
@@ -72,8 +83,25 @@ uebersicht <- data.frame(datum = daimler$Datum,
                          deutschebank_rendite = deutschebank_rendite,
                          daimler_wert,
                          deutschebank_wert,
-                         portfolio_r)
+                         portfolio_r,
+                         portfolio_rendite)
 
+thirdworst <- head(1--(rollapply(uebersicht$portfolio_rendite, width = 250,function(x) sort(x)[3])),250)
+
+uebersicht <-head(uebersicht,250)
+
+valueatrisk <- uebersicht$portfolio_r*thirdworst
+
+uebersicht$valueatrisk <- valueatrisk
+  
+ggplot(uebersicht, aes(x = datum, y = portfolio_r)) + 
+  geom_line(size=1) + 
+  geom_line(aes(y=valueatrisk, color = "Value at Risk"), linetype = "dashed")+
+  ggtitle("Hello") + 
+  xlab("Datum") + 
+  ylab("Prozentuale Veränderung")+  
+  scale_color_manual(values = c("Value at Risk" = "red")) +
+  scale_linetype_manual(values = c("Value at Risk" = "dashed"))
 
 # Append the calculated VaR and Wert
 #portfolio$Value_at_risk <- var_berechnen
