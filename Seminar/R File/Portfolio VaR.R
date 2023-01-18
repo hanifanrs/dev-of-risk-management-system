@@ -23,9 +23,11 @@ deutschebank <- deutschebank %>% arrange_all(desc)
 # Calculating logarithmic returns (Rendite Prozent)
 n_mbg <- length(daimler$Schlusskurs)
 daimler_rendite <- log(daimler$Schlusskurs[-1]/daimler$Schlusskurs[-n_mbg])
+daimler_rendite <- append(daimler_rendite, 0)
 
 n_dbk <- length(deutschebank$Schlusskurs)
 deutschebank_rendite <- log(deutschebank$Schlusskurs[-1]/deutschebank$Schlusskurs[-n_dbk])
+deutschebank_rendite <- append(deutschebank_rendite, 0)
 
 # Number of shares
 anzahl <- dbGetQuery(rms_dbs,
@@ -59,6 +61,18 @@ deutschebank_portfolio_gestern[1,] <- 0
 portfolio_gestern <- daimler_portfolio_gestern+deutschebank_portfolio_gestern
 
 #portfolio_gestern <- sort(portfolio_gestern, decreasing = TRUE)
+
+
+uebersicht <- data.frame(datum = daimler$Datum,
+                         daimler_anzahl = daimler_anzahl$Anzahl,
+                         deutschebank_anzahl = deutschebank_anzahl$Anzahl,
+                         daimler_tagespreis = daimler$Schlusskurs,
+                         deutschebank_tagespreis = deutschebank$Schlusskurs,
+                         daimler_rendite = daimler_rendite,
+                         deutschebank_rendite = deutschebank_rendite,
+                         daimler_wert,
+                         deutschebank_wert,
+                         portfolio_r)
 
 
 # Append the calculated VaR and Wert
