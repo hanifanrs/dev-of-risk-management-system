@@ -1,0 +1,99 @@
+install.packages("RMySQL")
+library(RMySQL)
+
+install.packages("fGarch")
+library(fGarch)
+
+#connection zwischen R und MySQL
+
+con <- dbConnect(MySQL(),
+                 user='root',
+                 password='jesus2015',
+                 host='127.0.0.1',
+                 dbname='rms_dbs')
+library(quantmod)
+
+#import
+
+#Lesen Sie die Tabelle in R aus mysql
+
+deutsche_bank <- dbReadTable(con, "deutsche_bank")
+mercedes <- dbReadTable(con, " mercedes")
+tagespreis <- dbReadTable(con, " tagespreis")
+
+
+# Import the all table from rms_dbs
+aktien <- dbReadTable(con, "aktien")
+tagespreis <- dbReadTable(con, "tagespreis")
+snapshot <- dbReadTable(con, "snapshot")
+portfolio <- dbReadTable(con, "portfolio")
+fonds <- dbReadTable(con, "fonds") 
+
+# Converted to correct Datatype
+tagespreis$Datum <- as.Date(tagespreis$Datum, "%Y-%m-%d")
+
+
+
+# Lesen Sie die gewünschte Spalte in R ein
+
+query1 <- "SELECT Schlusskurs FROM tagespreis where Aktien_id=1"
+mercedesSchlusskurs <- dbGetQuery(con, query1 )
+
+query2 <- "SELECT Schlusskurs FROM tagespreis where Aktien_id=2"
+deutscheSchlusskurs <- dbGetQuery(con, query2)
+
+query3 <- "SELECT Datum FROM tagespreis"
+Datum <- dbGetQuery(con, query3)
+
+query3 <- "SELECT Schlusskurs FROM tagespreis"
+Schlusskurs <- dbGetQuery(con, query3)
+
+
+# Daten abrufen
+tagespreis <- dbGetQuery(con, "SELECT * FROM tagespreis")
+
+# Rendite berechnen
+
+library(xts)
+library(zoo)
+library(PerformanceAnalytics)
+
+returns <- ROC(tagespreis$Schlusskurs, type = "discrete")
+
+print(returns)
+# Renditen sortieren
+sorted_returns <- sort(returns)
+print(sorted_returns)
+
+# VaR für die schlimmsten 5% der Tage berechnen
+worst_days_percentage <- 0.05
+var <- quantile(sorted_returns, probs = worst_days_percentage)
+
+
+# Calculate the Value of Portfolio
+wert_berechnen <- dbGetQuery(con, 
+                             "SELECT SUM(s.Anzahl * t.Schlusskurs) AS Wert
+FROM Portfolio p
+INNER JOIN Snapshot s ON s.Snapshot_id = p.Snapshot_id
+INNER JOIN Tagespreis t ON t.Aktien_id = s.Aktien_id AND t.Datum = p.Datum
+GROUP BY s.Snapshot_id;")
+wert_berechnen <- as.numeric(wert_berechnen$Wert)
+
+# Append the calculated VaR and Wert
+Value_at_risk <- var
+Wert <- wert_berechnen
+
+
+# Additional
+portfolio <- portfolio %>%
+  arrange_all(desc)
+portfolio$Datum <- as.Date(portfolio$Datum, "%Y-%m-%d")
+
+# Write table in SQL
+dbSendQuery(con, "DELETE FROM fonds;")
+
+dbSendQuery(con, "DELETE FROM portfolio;")
+dbWriteTable(con, "portfolio", portfolio, append=TRUE, row.names=FALSE)
+
+dbWriteTable(con, "fonds", fonds, append=TRUE, row.names=FALSE)
+
