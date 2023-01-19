@@ -1,9 +1,8 @@
-#dbk = Deutsche Bank AG
-#mbg = Mercedes-Benz Group AG
 library(dplyr)
 library(DBI)
 library(lubridate)
 library(ggplot2)
+library(zoo)
 
 # Check data type
 str(daimler)
@@ -12,10 +11,6 @@ str(deutschebank)
 # Drop unused columns (Erster,Hoch,Tief,Stuecke,Volumen)
 daimler <- daimler[-c(1:2,4:6,8:9)]
 deutschebank <- deutschebank[-c(1:2,4:6,8:9)]
-
-# Filter to 2022 year only
-#daimler <- subset(daimler, year(daimler$Datum) == 2022)
-#deutschebank <- subset(deutschebank, year(deutschebank$Datum) == 2022)
 
 # Sort descending
 daimler <- daimler %>% arrange_all(desc)
@@ -72,8 +67,6 @@ portfolio_rendite <-
   (daimler_gewicht*daimler_rendite) +
   (deutschebank_gewicht*deutschebank_rendite)
 
-portfolio_rendite
-
 uebersicht <- data.frame(datum = daimler$Datum,
                          daimler_anzahl = daimler_anzahl$Anzahl,
                          deutschebank_anzahl = deutschebank_anzahl$Anzahl,
@@ -86,29 +79,36 @@ uebersicht <- data.frame(datum = daimler$Datum,
                          portfolio_r,
                          portfolio_rendite)
 
+# Find the third worst value each 250 days
 thirdworst <- head(1--(rollapply(uebersicht$portfolio_rendite, width = 250,function(x) sort(x)[3])),250)
-
+# Limit the data to according days
 uebersicht <-head(uebersicht,250)
-
+# Calculate the Value at Risk
 valueatrisk <- uebersicht$portfolio_r*thirdworst
-
 uebersicht$valueatrisk <- valueatrisk
-  
-ggplot(uebersicht, aes(x = datum, y = portfolio_r)) + 
-  geom_line(size=1) + 
-  geom_line(aes(y=valueatrisk, color = "Value at Risk"), linetype = "dashed")+
-  ggtitle("Hello") + 
+# Calculate the Value at Risk percent
+valueatrisk_prozent <- (valueatrisk - uebersicht$portfolio_r)/valueatrisk
+uebersicht$valueatrisk_prozent <- valueatrisk_prozent
+
+# Plotting the Value at Risk  
+ggplot(uebersicht, aes(x = datum, y = portfolio_rendite)) + 
+  geom_line(linewidth=1) + 
+  geom_line(aes(y=valueatrisk_prozent, color = "Value at Risk"), linetype = "dashed")+
+  ggtitle("Value At Risk") + 
   xlab("Datum") + 
   ylab("Prozentuale Veränderung")+  
   scale_color_manual(values = c("Value at Risk" = "red")) +
   scale_linetype_manual(values = c("Value at Risk" = "dashed"))
 
+
+# Format to save in my SQL
+uebersicht_dbs <- uebersicht[order(uebersicht$datum, decreasing = FALSE),]
+
 # Append the calculated VaR and Wert
-#portfolio$Value_at_risk <- var_berechnen
-#portfolio$Wert <- 
+portfolio$Value_at_risk[263:nrow(portfolio)]<- uebersicht_dbs$valueatrisk
+portfolio$Wert[263:nrow(portfolio)] <- uebersicht_dbs$portfolio_r
 
 # Additional
-#portfolio <- portfolio %>% arrange_all(desc)
 portfolio$Datum <- as.Date(portfolio$Datum, "%Y-%m-%d")
 
 # Write table in SQL
