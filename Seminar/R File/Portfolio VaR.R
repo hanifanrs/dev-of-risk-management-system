@@ -1,3 +1,4 @@
+# Import Packages
 library(dplyr)
 library(DBI)
 library(lubridate)
@@ -31,32 +32,17 @@ anzahl <- dbGetQuery(rms_dbs,
 FROM Portfolio p
 INNER JOIN Snapshot s ON s.Snapshot_id = p.Snapshot_id
 INNER JOIN Tagespreis t ON t.Aktien_id = s.Aktien_id AND t.Datum = p.Datum;")
-
 daimler_anzahl <- subset(anzahl, anzahl$Aktien_id == 1)
 daimler_anzahl <- daimler_anzahl %>% arrange_all(desc)
-daimler_anzahl_heute <- daimler_anzahl[1,2]
-daimler_anzahl_heute <- as.matrix(daimler_anzahl_heute)
 
 deutschebank_anzahl <- subset(anzahl, anzahl$Aktien_id == 2)
 deutschebank_anzahl <- deutschebank_anzahl %>% arrange_all(desc)
-deutschebank_anzahl_heute <- deutschebank_anzahl[1,2]
-deutschebank_anzahl_heute <- as.matrix(deutschebank_anzahl_heute)
 
-# Wert
-daimler_wert <- daimler$Schlusskurs * daimler_anzahl$Anzahl
-deutschebank_wert <- deutschebank$Schlusskurs * deutschebank_anzahl$Anzahl
 
 # Calculate the Value of Portfolio
+daimler_wert <- daimler$Schlusskurs * daimler_anzahl$Anzahl
+deutschebank_wert <- deutschebank$Schlusskurs * deutschebank_anzahl$Anzahl
 portfolio_r <- daimler_wert+deutschebank_wert
-
-# Calculate the what would have been the portfolio value yesterday
-daimler_portfolio_gestern <- t(daimler_anzahl_heute %*% daimler$Schlusskurs)
-daimler_portfolio_gestern[1,] <- 0
-deutschebank_portfolio_gestern <- t(deutschebank_anzahl_heute %*% deutschebank$Schlusskurs)
-deutschebank_portfolio_gestern[1,] <- 0
-portfolio_gestern <- daimler_portfolio_gestern+deutschebank_portfolio_gestern
-
-#portfolio_gestern <- sort(portfolio_gestern, decreasing = TRUE)
 
 # Calculate the weight of portfolio
 daimler_gewicht <- daimler_wert/portfolio_r
@@ -81,25 +67,28 @@ uebersicht <- data.frame(datum = daimler$Datum,
 
 # Find the third worst value each 250 days
 thirdworst <- head(1--(rollapply(uebersicht$portfolio_rendite, width = 250,function(x) sort(x)[3])),250)
+
 # Limit the data to according days
 uebersicht <-head(uebersicht,250)
+
 # Calculate the Value at Risk
 valueatrisk <- uebersicht$portfolio_r*thirdworst
 uebersicht$valueatrisk <- valueatrisk
+
 # Calculate the Value at Risk percent
-valueatrisk_prozent <- (valueatrisk - uebersicht$portfolio_r)/valueatrisk
+valueatrisk_prozent <- -((valueatrisk - uebersicht$portfolio_r)/valueatrisk)
 uebersicht$valueatrisk_prozent <- valueatrisk_prozent
 
 # Plotting the Value at Risk  
 ggplot(uebersicht, aes(x = datum, y = portfolio_rendite)) + 
-  geom_line(linewidth=1) + 
+  theme_minimal()+
+  geom_line(linewidth=0.8) + 
   geom_line(aes(y=valueatrisk_prozent, color = "Value at Risk"), linetype = "dashed")+
   ggtitle("Value At Risk") + 
   xlab("Datum") + 
   ylab("Prozentuale Veränderung")+  
   scale_color_manual(values = c("Value at Risk" = "red")) +
   scale_linetype_manual(values = c("Value at Risk" = "dashed"))
-
 
 # Format to save in my SQL
 uebersicht_dbs <- uebersicht[order(uebersicht$datum, decreasing = FALSE),]
@@ -108,7 +97,7 @@ uebersicht_dbs <- uebersicht[order(uebersicht$datum, decreasing = FALSE),]
 portfolio$Value_at_risk[263:nrow(portfolio)]<- uebersicht_dbs$valueatrisk
 portfolio$Wert[263:nrow(portfolio)] <- uebersicht_dbs$portfolio_r
 
-# Additional
+# Converted to correct Datatype
 portfolio$Datum <- as.Date(portfolio$Datum, "%Y-%m-%d")
 
 # Write table in SQL
